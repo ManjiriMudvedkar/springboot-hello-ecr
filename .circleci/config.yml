@@ -1,22 +1,47 @@
-version: 2.1  
-orbs:
-  maven: circleci/maven@1.3.0
+version: 2.1
 
-jobs:
-  push_artifact:
-    docker: 
-      - image: circleci/node:4.8.2
-    working_directory: /tmp
+commands:
+  restore_cache_cmd:
     steps:
-    - run:
-        command: |
-          mkdir /tmp/artifacts;
-          echo "./target/*.jar" > /tmp/artifacts/springboot.jar;
-    - store_artifacts:
-        path: /tmp/artifacts/springboot.jar
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "pom.xml" }}
+          - v1-dependencies-
+  save_cache_cmd:
+    steps:  
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
+  store_artifacts_cmd:
+    steps:
+      - store_artifacts: # store the uberjar as an artifact
+          path: target/gs-spring-boot-0.1.0.jar  
+  build:
+    steps:
+      - checkout
+      - restore_cache_cmd
+      - run: 
+          command: |
+            mvn clean install;
+            ls -l;
+      - store_artifacts_cmd
+      - persist_to_workspace:
+          root: target
+          paths:
+            - gs-spring-boot-0.1.0.jar
+ executors:
+  java-executor:
+    docker:
+      - image: circleci/openjdk:8-jdk
+      
+jobs:
+  build_artifact:
+    executor: java-executor
+    steps:
+      - build
 workflows:
-  maven_test:
+  build_artifact:
     jobs:
-      - maven/test:
-          command: 'clean install'
-      - push_artifact
+      - build_artifact
+          
