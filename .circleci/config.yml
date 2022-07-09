@@ -55,7 +55,7 @@ jobs:
           name: Build Docker image
           command: |
             docker build -t springboot-hello-ecr .
-            echo "$AWS-PASSWORD" | docker login --username AWS --password-stdin 824837273754.dkr.ecr.us-east-1.amazonaws.com
+            echo "$AWS-PASSWORD" | aws ecr get-login-password --region us-east-1 
             docker push 824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr:latest	  
 workflows:
   build_artifact:
