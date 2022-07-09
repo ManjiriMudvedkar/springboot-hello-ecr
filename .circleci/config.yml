@@ -34,7 +34,9 @@ executors:
   java-executor:
     docker:
       - image: circleci/openjdk:8-jdk
-      
+  docker-executor:
+    docker:
+      - image: circleci/buildpack-deps:stretch      
 jobs:
   build_artifact:
     executor: java-executor
