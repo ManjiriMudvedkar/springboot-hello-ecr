@@ -1,10 +1,22 @@
-version: 2.1
-
+version: 2.1  
 orbs:
   maven: circleci/maven@1.3.0
 
+jobs:
+  push_artifact:
+    docker: 
+      - image: circleci/node:4.8.2
+    working_directory: /tmp
+    steps:
+    - run:
+        command: |
+          mkdir /tmp/artifacts;
+          echo "./target/*.jar" > /tmp/artifacts/springboot.jar;
+    - store_artifacts:
+        path: /tmp/artifacts/springboot.jar
 workflows:
   maven_test:
     jobs:
       - maven/test:
           command: 'clean install'
+      - push_artifact
