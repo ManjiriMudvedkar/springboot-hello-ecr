@@ -44,7 +44,7 @@ jobs:
       - build
   build_and_publish_docker_image:
     environment:
-      IMAGE_NAME: manjirimudvedkar/springboot-hello
+      IMAGE_NAME: manjirim/springboot-hello
     executor: docker-executor
     steps:
       - checkout
