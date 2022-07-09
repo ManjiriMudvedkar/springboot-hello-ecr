@@ -30,7 +30,7 @@ commands:
           root: target
           paths:
             - gs-spring-boot-0.1.0.jar
- executors:
+executors:
   java-executor:
     docker:
       - image: circleci/openjdk:8-jdk
