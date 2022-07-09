@@ -63,8 +63,3 @@ workflows:
           context: Docker_Password
           requires:
             - build_artifact
-workflows:
-  build_artifact:
-    jobs:
-      - build_artifact
-          
