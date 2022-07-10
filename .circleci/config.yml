@@ -1,66 +1,18 @@
 version: 2.1
 orbs: 
   aws-ecr: circleci/aws-ecr@8.1.2
-commands:
-  restore_cache_cmd:
-    steps:
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "pom.xml" }}
-          - v1-dependencies-
-  save_cache_cmd:
-    steps:  
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies-{{ checksum "pom.xml" }}
-  store_artifacts_cmd:
-    steps:
-      - store_artifacts: # store the uberjar as an artifact
-          path: target/gs-spring-boot-0.1.0.jar  
-  build:
-    steps:
-      - checkout
-      - restore_cache_cmd
-      - run: 
-          command: |
-            mvn clean install;
-            ls -l;
-      - store_artifacts_cmd
-      - persist_to_workspace:
-          root: target
-          paths:
-            - gs-spring-boot-0.1.0.jar
-executors:
-  java-executor:
-    docker:
-      - image: circleci/openjdk:8-jdk
-  docker-executor:
-    docker:
-      - image: circleci/buildpack-deps:stretch      
-jobs:
-  build_artifact:
-    executor: java-executor
-    steps:
-      - build
-  build_and_publish_docker_image:
-    environment:
-      IMAGE_NAME: 824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr
-    executor: docker-executor
-    steps:
-      - checkout
-      - attach_workspace:
-          at: target
-      - setup_remote_docker
-      - run:
-          name: Build Docker image
-          command: |
-            docker build -t springboot-hello-ecr .
-            echo "$AWS-PASSWORD" | aws ecr get-login-password --region us-east-1 
-            docker push $824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr:latest	  
+
 workflows:
-  build-and-deploy:
+  build_and_push_image:
     jobs:
       - aws-ecr/build-and-push-image:
-          repo: "$824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr"
-          tag: "$docker tag springboot-hello-ecr:latest 824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr:latest"
+          account-url: AWS_ACCOUNT_ID
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          context: AWS-PASSWORD
+          create-repo: true
+          dockerfile: Dockerfile
+          path: ./
+          region: AWS_REGION
+          repo: $824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr
+          tag: docker tag $springboot-hello-ecr:latest 824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr:latest
