@@ -47,5 +47,19 @@ workflows:
   build-and-deploy:
     jobs:
       - aws-ecr/build-and-push-image:
-          repo: 824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr
-          tag: docker tag springboot-hello-ecr:latest 824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr:latest
+          account-url: AWS_ECR_ACCOUNT_URL
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          create-repo: true
+          dockerfile: Dockerfile
+          path: .
+          region: AWS_REGION
+          repo: springboot-hello-ecr
+          tag: "$CIRCLE_SHA1"
+  build_artifact:
+    jobs:
+      - build_artifact
+      - build_and_publish_docker_image:
+          context: AWS-PASSWORD
+          requires:
+            - build_artifact         
