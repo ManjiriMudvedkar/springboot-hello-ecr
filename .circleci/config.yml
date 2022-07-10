@@ -1,6 +1,8 @@
 version: 2.1
 orbs: 
   aws-cli: circleci/aws-cli@3.1.1
+orbs: 
+  aws-ecr: circleci/aws-ecr@8.1.2
 commands:
   restore_cache_cmd:
     steps:
@@ -59,10 +61,8 @@ jobs:
             echo "$AWS-PASSWORD" | aws ecr get-login-password --region us-east-1 
             docker push $824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr:latest	  
 workflows:
-  build_artifact:
+  build-and-deploy:
     jobs:
-      - build_artifact
-      - build_and_publish_docker_image:
-          context: AWS-PASSWORD
-          requires:
-            - build_artifact
+      - aws-ecr/build-and-push-image:
+          repo: "$824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr"
+          tag: "$docker tag springboot-hello-ecr:latest 824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr:latest"
