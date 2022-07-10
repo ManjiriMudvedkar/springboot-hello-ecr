@@ -6,13 +6,13 @@ workflows:
   build_and_push_image:
     jobs:
       - aws-ecr/build-and-push-image:
-          account-url: AWS_ACCOUNT_ID
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          context: AWS-PASSWORD
+          account-url: $AWS_ACCOUNT_ID
+          aws-access-key-id: $AWS_ACCESS_KEY_ID
+          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
+          context: $AWS-PASSWORD
           create-repo: true
           dockerfile: Dockerfile
           path: ./
-          region: AWS_REGION
+          region: $AWS_REGION
           repo: $824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr
           tag: docker tag $springboot-hello-ecr:latest 824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr:latest
