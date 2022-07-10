@@ -56,10 +56,4 @@ workflows:
           region: AWS_REGION
           repo: springboot-hello-ecr
           tag: "$CIRCLE_SHA1"
-  build_artifact:
-    jobs:
-      - build_artifact
-      - build_and_publish_docker_image:
-          context: AWS-PASSWORD
-          requires:
-            - build_artifact         
+          context: AWS-PASSWORD     
