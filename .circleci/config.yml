@@ -44,7 +44,6 @@ jobs:
     steps:
       - build
 workflows:
-  build-and-deploy:
     jobs:
       - aws-ecr/build-and-push-image:
           account-url: AWS_ACCOUNT_ID
