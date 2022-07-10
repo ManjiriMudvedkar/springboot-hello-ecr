@@ -47,5 +47,5 @@ workflows:
   build-and-deploy:
     jobs:
       - aws-ecr/build-and-push-image:
-          repo: "$824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr"
+          repo: "824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr"
           tag: "docker tag springboot-hello-ecr:latest 824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr:latest"
