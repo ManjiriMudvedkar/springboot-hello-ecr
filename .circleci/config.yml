@@ -60,6 +60,6 @@ workflows:
     jobs:
       - build_artifact
       - build_and_publish_docker_image:
-          context: aws_ecr_login      
+          context: aws-ecr-login      
           requires:
             - build_artifact
