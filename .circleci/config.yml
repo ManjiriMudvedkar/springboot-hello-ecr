@@ -1,19 +1,6 @@
 version: 2.1
-orbs: 
-  aws-ecr: circleci/aws-ecr@8.1.2
+
 commands:
-  restore_cache_cmd:
-    steps:
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "pom.xml" }}
-          - v1-dependencies-
-  save_cache_cmd:
-    steps:  
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies-{{ checksum "pom.xml" }}
   store_artifacts_cmd:
     steps:
       - store_artifacts: # store the uberjar as an artifact
@@ -21,7 +8,6 @@ commands:
   build:
     steps:
       - checkout
-      - restore_cache_cmd
       - run: 
           command: |
             mvn clean install;
@@ -31,23 +17,49 @@ commands:
           root: target
           paths:
             - gs-spring-boot-0.1.0.jar
+  build_push_to_ecr_cmd:
+    steps:
+      - checkout      
+      - run:
+          name: Install dependencies for AWS
+          command: |
+            apk add py-pip
+            pip install awscli
+      - run:
+          name: Build image
+          command: |          
+            docker build -t ${ECR_REPO_NAME}:${IMAGE_TAG} .
+      - run:
+          name: push image
+          command: |
+            eval $(aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email)
+            docker tag ${ECR_REPO_NAME}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}  
 executors:
   java-executor:
     docker:
       - image: circleci/openjdk:8-jdk
   docker-executor:
     docker:
-      - image: circleci/buildpack-deps:stretch      
+      - image: docker:18.06.1-ce-git      
 jobs:
   build_artifact:
     executor: java-executor
     steps:
       - build
+  build_and_publish_docker_image:
+    executor: docker-executor
+    steps:
+      - checkout
+      - attach_workspace:
+          at: target
+      - setup_remote_docker
+      - build_push_to_ecr_cmd
 workflows:
-  build-and-deploy:
+  build_artifact:
     jobs:
-      - aws-ecr/build-and-push-image:
-          repo: "824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr"
-          tag: "docker tag springboot-hello-ecr:latest 824837273754.dkr.ecr.us-east-1.amazonaws.com/springboot-hello-ecr:latest"
-          context :
-            - AWS-PASSWORD
+      - build_artifact
+      - build_and_publish_docker_image:
+          context: aws_ecr_login      
+          requires:
+            - build_artifact
