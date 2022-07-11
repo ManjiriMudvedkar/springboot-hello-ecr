@@ -28,7 +28,7 @@ commands:
       - run:
           name: Build image
           command: |          
-            docker build -t ${ECR_REPO_NAME}: .
+            docker build -t ${ECR_REPO_NAME}:${IMAGE_TAG} .
       - run:
           name: push image
           command: |
