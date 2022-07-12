@@ -1,6 +1,5 @@
 version: 2.1
-orbs: 
-  aws-cli: circleci/aws-cli@3.1.1
+
 commands:
   store_artifacts_cmd:
     steps:
@@ -56,13 +55,6 @@ jobs:
           at: target
       - setup_remote_docker
       - build_push_to_ecr_cmd
-  aws-cli-cred-setup:
-    executor: aws-cli/default
-    steps:
-      - aws-cli/setup:
-          aws-access-key-id: AWS_ACCESS_KEY
-          aws-secret-access-key: AWS_ACCESS_SECRET
-          aws-region: AWS_REGION_NAME    
 workflows:
   build_artifact:
     jobs:
@@ -70,8 +62,4 @@ workflows:
       - build_and_publish_docker_image:
           context: aws-ecr-login      
           requires:
-            - build_artifact
-  aws-cli:
-    jobs:
-      - aws-cli-cred-setup:
-          context: aws-cred          
+            - build_artifact    
